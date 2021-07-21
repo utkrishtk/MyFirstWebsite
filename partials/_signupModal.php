@@ -9,20 +9,20 @@
                 </button>
             </div>
             <div class="modal-body">
-            <form>
+                <form action="/forum/partials/_handleSignup.php" method="post">
                     <div class="form-group">
-                        <label for="exampleInputEmail1">Email address</label>
-                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                        <label for="signupEmail">Email address</label>
+                        <input type="email" class="form-control" id="signupEmail" name="signupEmail" aria-describedby="emailHelp">
                         <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
                             else.</small>
                     </div>
                     <div class="form-group">
-                        <label for="exampleInputPassword1">Password</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="signupPassword" name="signupPassword">
                     </div>
                     <div class="form-group">
-                        <label for="exampleInputPassword1">Confirm Password</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1">
+                        <label for="cpassword">Confirm Password</label>
+                        <input type="password" class="form-control" id="signupcPassword" name="signupcPassword">
                     </div>
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="exampleCheck1">

@@ -12,19 +12,20 @@
 
     <title>iDiscuss - Browse Categories</title>
     <style>
-    #ques{
-        min-height:500px;
+    #ques {
+        min-height: 500px;
     }
-</style>
+    </style>
 </head>
 
 <body>
-    <?php
-    include 'partials/_header.php';
-   ?>
     <?php 
    include 'partials/_dbconnect.php';
    ?>
+    <?php
+    include 'partials/_header.php';
+   ?>
+
     <!-- Slider starts here  -->
     <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">
@@ -34,13 +35,16 @@
         </ol>
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <img src="https://source.unsplash.com/2400x800/?coding,code" class="d-block w-100" alt="image for this category">
+                <img src="https://source.unsplash.com/2400x800/?coding,code" class="d-block w-100"
+                    alt="image for this category">
             </div>
             <div class="carousel-item">
-                <img src="https://source.unsplash.com/2400x800/?programmer,motivation" class="d-block w-100" alt="image for this category">
+                <img src="https://source.unsplash.com/2400x800/?programmer,motivation" class="d-block w-100"
+                    alt="image for this category">
             </div>
             <div class="carousel-item">
-                <img src="https://source.unsplash.com/2400x800/?computer,chips" class="d-block w-100" alt="image for this category">
+                <img src="https://source.unsplash.com/2400x800/?computer,chips" class="d-block w-100"
+                    alt="image for this category">
             </div>
         </div>
         <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">

@@ -19,12 +19,13 @@
 </head>
 
 <body>
-    <?php
-    include 'partials/_header.php';
-   ?>
     <?php 
    include 'partials/_dbconnect.php';
    ?>
+    <?php
+    include 'partials/_header.php';
+   ?>
+
     <?php
     $id = $_GET['threadid'];
        $sql = "SELECT * FROM `threads` WHERE `thread_id`=$id";
@@ -37,16 +38,27 @@
    ?>
     <!-- PHP for form submission   -->
     <?php 
+     
     $showAlert = false;
     $method=$_SERVER['REQUEST_METHOD'];
     if($method=='POST'){
         //Insert into thread into db   
         $th_comment = $_POST['comment'];
-        $sql="INSERT INTO `comments` (`comment_content`, `thread_id`, `comment_by`, `comment_time`) VALUES ('$th_comment', '$id', '0', current_timestamp())";
+        $th_comment = str_replace("<","&lt;",$th_comment);
+        $th_comment = str_replace(">","&gt;",$th_comment);
+        $sno=$_POST['sno'];
+        // This is the tough way to do things
+        // $user_email = $_SESSION['useremail'];
+        // $sql1="SELECT `sno` FROM `users` WHERE `user_email`= '$user_email'";
+        // $result1=mysqli_query($conn, $sql1);
+        // $row1=mysqli_fetch_assoc($result1);
+        // $sno=$row1['sno'];
+
+        $sql="INSERT INTO `comments` (`comment_content`, `thread_id`, `comment_by`, `comment_time`) VALUES ('$th_comment', '$id','$sno' , current_timestamp())";
         $result= mysqli_query($conn, $sql);
         $showAlert = true;
         if($showAlert){
-            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+            echo '<div class="alert alert-success alert-dismissible fade show my-0" role="alert">
             <strong>Success! </strong>Your comment has been added successfully.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -56,7 +68,7 @@
     }
     ?>
 
-    <!-- Category container starts here  -->
+    <!-- jumbotron for header  -->
     <div class="container my-3">
         <div class="jumbotron">
             <h3 class="display-4"><?php echo $title;?></h3>
@@ -67,24 +79,35 @@
                 Do not post “offensive” posts, links or images.
                 Do not PM users asking for help.
                 Remain respectful of other members at all times. </p>
-            <p><b>Posted by: Utkrisht</b></p>
+            <p>Posted by: <b><?php echo $_GET['asked']; ?></b></p>
         </div>
     </div>
     <!-- form to get a comment -->
-    <div class="container">
-        <h1 class="py-2">Post a Comment</h1>
-        <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
-            <div class="form-group">
-                <label for="comment">Type your comment</label>
-                <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
-            </div>
-            <button type="submit" class="btn btn-success">Post Comment</button>
-        </form>
-    </div>
+    <?php
+    if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']==true){
+    echo ' <div class="container">
+    <h1 class="py-2">Post a Comment</h1>
+    <form action="'.$_SERVER["REQUEST_URI"].'" method="post">
+        <div class="form-group">
+            <label for="comment">Type your comment</label>
+            <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+            <input type="hidden" name="sno" value="'.$_SESSION['sno'].'">
+        </div>
+        <button type="submit" class="btn btn-success">Post Comment</button>
+    </form>
+</div>';
+    }
+    else{
+        echo '<div class="container">
+            <h1 class="py-2">Post a Comment</h1>
+             <p class="lead">You are not logged in. Please login to be able to post Comments.</p>
+             </div>';
+    }
+    ?>
     <!-- this is a code to fetch a comment  -->
     <div class="container" id="ques">
         <h1 class="py-2">Discussion</h1>
-    <?php
+        <?php
         $id = $_GET['threadid'];
         $sql = "SELECT * FROM `comments` WHERE `thread_id`=$id";
         $result = mysqli_query($conn, $sql);
@@ -94,10 +117,14 @@
         $id = $row['comment_id'];
         $content = $row['comment_content'];
         $comment_time= $row['comment_time'];
+        $comment_by = $row['comment_by'];
+        $sql2="SELECT user_email FROM users WHERE sno=$comment_by";
+        $result2=mysqli_query($conn, $sql2);
+        $row2 = mysqli_fetch_assoc($result2);
         echo '<div class="media my-3">
         <img src="img/userdefault.png" width="52px" class="mr-3" alt="...">
         <div class="media-body">
-        <p class="font-weight-bold my-0">Anonymous User at '.$comment_time.'</p>
+        <p class="font-weight-bold my-0">'.$row2['user_email'].' at '.$comment_time.'</p>
             '.$content.'
         </div>
     </div>'; 
@@ -106,7 +133,7 @@
         echo '<div class="jumbotron jumbotron-fluid">
         <div class="container">
           <p class="display-4">No Comments Found</p>
-          <p class="lead">Be the first person to write a comment.</p>
+          <p class="lead">Be the first person to comment.</p>
         </div>
       </div>';
     }

@@ -19,12 +19,13 @@
 </head>
 
 <body>
-    <?php
-    include 'partials/_header.php';
-   ?>
     <?php 
    include 'partials/_dbconnect.php';
    ?>
+    <?php
+    include 'partials/_header.php';
+   ?>
+
     <?php
     $id = $_GET['catid'];
        $sql = "SELECT * FROM `categories` WHERE `category_id`=$id";
@@ -35,15 +36,23 @@
        }
       
    ?>
-   <!-- PHP for form submission   -->
+    <!-- PHP for form submission   -->
     <?php 
     $showAlert = false;
     $method=$_SERVER['REQUEST_METHOD'];
     if($method=='POST'){
         //Insert into thread into db   
         $th_title =$_POST['title'];
+        $th_title=str_replace("<","&lt;",$th_title);
+        $th_title=str_replace(">","&gt;",$th_title);
         $th_desc = $_POST['desc'];
-        $sql = "INSERT INTO `threads` (`thread_title`, `thread_desc`, `thread_cat_id`, `thread_user_id`, `timestamp`) VALUES ('$th_title', '$th_desc', '$id', '0', current_timestamp())";
+        $th_desc = str_replace("<","&lt;",$th_desc);
+        $th_desc = str_replace(">","&gt;",$th_desc);
+        $th_desc = str_replace("'","\'",$th_desc);
+        
+        
+        $sno = $_POST['sno'];
+        $sql = "INSERT INTO `threads` (`thread_title`, `thread_desc`, `thread_cat_id`, `thread_user_id`, `timestamp`) VALUES ('$th_title', '$th_desc', '$id', '$sno', current_timestamp())";
         $result= mysqli_query($conn, $sql);
         $showAlert = true;
         if($showAlert){
@@ -70,10 +79,13 @@
             <a class="btn btn-success btn-lg" href="#" role="button">Learn more</a>
         </div>
     </div>
-    <!-- this is form submission -->
-    <div class="container">
-        <h1 class="py-2">Start a Discussion</h1>
-        <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
+    <!-- this is start discussion form submission -->
+
+    <?php
+    if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']==true){
+    echo '<div class="container">
+          <h1 class="py-2">Start a Discussion</h1>
+          <form action="'.$_SERVER["REQUEST_URI"].'" method="post">
             <div class="form-group">
                 <label for="title">Problem Title</label>
                 <input type="text" class="form-control" id="title" name="title" aria-describedby="emailHelp">
@@ -82,10 +94,21 @@
             <div class="form-group">
                 <label for="desc">Elaborate Your Concern</label>
                 <textarea class="form-control" id="desc" name="desc" rows="5"></textarea>
+                <input type="hidden" name="sno" value="'.$_SESSION['sno'].'">
             </div>
             <button type="submit" class="btn btn-success">Submit</button>
-        </form>
-    </div>
+          </form>
+        </div>';
+    }
+    else{
+        echo '<div class="container">
+            <h1 class="py-2">Start a Discussion</h1>
+             <p class="lead">You are not logged in. Please login to be able to start a Discussion.</p>
+             </div>';
+    }
+    ?>
+
+
     <div class="container" id="ques">
         <h1 class="py-2">Browse Questions</h1>
         <?php
@@ -98,11 +121,17 @@
         $id = $row['thread_id'];
         $title = $row['thread_title'];
         $desc = $row['thread_desc'];
+        $thread_time = $row['timestamp'];
+        $thread_user_id = $row['thread_user_id'];
+        $sql2 = "SELECT user_email FROM `users` WHERE sno='$thread_user_id'";
+        $result2 = mysqli_query($conn,$sql2);
+        $row2 = mysqli_fetch_assoc($result2);
         echo '<div class="media my-3">
         <img src="img/userdefault.png" width="52px" class="mr-3" alt="...">
         <div class="media-body">
-            <h5 class="mt-0"><a href="thread.php?threadid='.$id.'">'.$title.'</a></h5>
+            <h5 class="mt-0"><a href="thread.php?threadid='.$id.'&asked='.$row2["user_email"].'">'.$title.'</a></h5>
             <p>'.$desc.'</p>
+            <p class="font-weight-bold my-0">Asked by:'.$row2["user_email"].' at '.$thread_time.'</p>
         </div>
     </div>'; 
        }
@@ -117,7 +146,7 @@
       
    ?>
 
-        
+
     </div>
     <?php
     include 'partials/_footer.php';
